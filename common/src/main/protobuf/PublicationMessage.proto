@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+option java_outer_classname = "PublicationMessage";
+option java_package = "com.ebs.project.proto";
+
+
+message PublicationDTO {
+  string companyName = 1;
+  double drop = 2;
+  double value = 3;
+  double variation = 4;
+  google.protobuf.Timestamp date = 5;
+
+  int32 port = 6;
+}
