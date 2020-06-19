@@ -4,9 +4,17 @@ import com.ebs.project.proto.PublicationMessage;
 import com.ebs.project.proto.SubscriptionMessage;
 import com.google.protobuf.AbstractMessageLite;
 import generator.models.BiTouple;
+import lombok.SneakyThrows;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
 import org.apache.flink.api.common.serialization.SerializationSchema;
+import org.apache.flink.api.common.time.Time;
+import org.apache.flink.runtime.state.FunctionInitializationContext;
+import org.apache.flink.runtime.state.FunctionSnapshotContext;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
+import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.environment.CheckpointConfig;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
 import org.apache.flink.streaming.connectors.rabbitmq.RMQSource;
@@ -26,6 +34,7 @@ import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class Broker {
 
@@ -51,10 +60,9 @@ public class Broker {
 
         switch (brokerNumber) {
             case 1: {
-
+//                System.out.printf("Current pid " + ProcessHandle.current().pid());
                 BrokerMonitor monitor = new BrokerMonitor("2");
                 monitor.start();
-
                 portIn = port1;
                 portOut = port2;
                 break;
@@ -78,7 +86,16 @@ public class Broker {
         }
         System.out.println("RUNNING AT IP: " + host + "  | PORT: " + portIn);
 
-        //env.enableCheckpointing(1000);
+//checkpointing section
+        env.enableCheckpointing(1000);
+        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(500);
+        env.getCheckpointConfig().setCheckpointTimeout(60000);
+        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
+        env.getCheckpointConfig().setPreferCheckpointForRecovery(true);
+
+        env.setStateBackend(new FsStateBackend("file:///C:/Users/mamatei/Desktop/Facultate/Master/EBS/proiect/ebs-publisher-subscriber/checkpoints", false));
+        CheckpointConfig config = env.getCheckpointConfig();
+        config.enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
 
         var connectionConfig = new RMQConnectionConfig.Builder()
                 .setHost(host)
@@ -175,6 +192,7 @@ public class Broker {
                         new SubscriptionDTODeserializer())
         ).setParallelism(1);
         subscriptionStream.addSink(new SinkFunction<>() {
+            @SneakyThrows
             @Override
             public void invoke(SubscriptionMessage.SubscriptionDTO value, Context context) {
                 if (RoutingService.register(value)) {
@@ -185,5 +203,6 @@ public class Broker {
             }
         });
     }
+
 }
 

@@ -27,14 +27,14 @@ public class BrokerMonitor extends Thread {
         cmds.add(NextBroker);
 
         pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        System.out.println("Starting broker "+ this.NextBroker);
+        System.out.println("Starting broker " + this.NextBroker);
 
         Process process = CreateBroker2();
 
         while (true) {
             if (!process.isAlive()) {
 
-                System.out.println("Broker is down let's restart=>Broker "+this.NextBroker);
+                System.out.println("Broker is down let's restart=>Broker " + this.NextBroker);
                 var routingCollection = RoutingService.routingCollection;
 
                 Thread.sleep(5000);
@@ -44,7 +44,8 @@ public class BrokerMonitor extends Thread {
                 }
 
                 process = CreateBroker2();
-                Thread.sleep(5000);
+//                Thread.sleep(5000);
+//                break;
 
 
             }
@@ -58,7 +59,7 @@ public class BrokerMonitor extends Thread {
             p = pb.start();
 
             long pid = p.pid();
-            System.out.println("Broker " + this.NextBroker+  " PID: " + pid);
+            System.out.println("Broker " + this.NextBroker + " PID: " + pid);
         } catch (IOException e) {
             e.printStackTrace();
         }
