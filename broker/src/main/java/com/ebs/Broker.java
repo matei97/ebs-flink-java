@@ -60,7 +60,7 @@ public class Broker {
 
         switch (brokerNumber) {
             case 1: {
-//                System.out.printf("Current pid " + ProcessHandle.current().pid());
+                System.out.printf("Current pid " + ProcessHandle.current().pid());
                 BrokerMonitor monitor = new BrokerMonitor("2");
                 monitor.start();
                 portIn = port1;
@@ -87,13 +87,13 @@ public class Broker {
         System.out.println("RUNNING AT IP: " + host + "  | PORT: " + portIn);
 
 //checkpointing section
-        env.enableCheckpointing(1000);
-        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(500);
-        env.getCheckpointConfig().setCheckpointTimeout(60000);
-        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
-        env.getCheckpointConfig().setPreferCheckpointForRecovery(true);
-
-        env.setStateBackend(new FsStateBackend("file:///C:/Users/mamatei/Desktop/Facultate/Master/EBS/proiect/ebs-publisher-subscriber/checkpoints", false));
+//        env.enableCheckpointing(1000);
+//        env.getCheckpointConfig().setMinPauseBetweenCheckpoints(500);
+//        env.getCheckpointConfig().setCheckpointTimeout(60000);
+//        env.getCheckpointConfig().setMaxConcurrentCheckpoints(1);
+//        env.getCheckpointConfig().setPreferCheckpointForRecovery(true);
+//
+//        env.setStateBackend(new FsStateBackend("file:///C:/Users/mamatei/Desktop/Facultate/Master/EBS/proiect/ebs-publisher-subscriber/checkpoints", false));
         CheckpointConfig config = env.getCheckpointConfig();
         config.enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION);
 
